@@ -62,12 +62,20 @@ if api_key and access_token:
         logger.info('Connected to Crabber. (username: @{})',
                     api.get_current_user().username)
 
+        # Get recently molted quotes
+        recent_quotes = [molt.content
+                         for molt in api.get_current_user().get_molts(15)]
+
+        # Randomly pick quotes until an unused one is found
+        while (quote := get_quote(quotes)) in recent_quotes:
+            pass
+
         # Send molt
-        quote = get_quote(quotes)
-        if api.post_molt(quote):
-            logger.info('Posted molt successfully.', quote)
-        else:
-            logger.error('Failed to post molt.')
+        if '--dry-run' not in sys.argv:
+            if api.post_molt(quote):
+                logger.info('Posted molt successfully.', quote)
+            else:
+                logger.error('Failed to post molt.')
 
     else:
         logger.error('No quotes found.')
